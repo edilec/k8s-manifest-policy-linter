@@ -1,0 +1,1 @@
+{"schemaVersion":"1","snapshotId":"k8s-json-subset-2026-09","resources":[{"apiVersion":"apps/v1","kind":"Deployment","shape":"deployment"},{"apiVersion":"v1","kind":"Pod","shape":"pod"},{"apiVersion":"v1","kind":"Service","shape":"service"}]}
