@@ -17,7 +17,7 @@ Bundle: `{"schemaVersion":"1","complete":true,"manifests":[{"manifest":{...}}]}`
 | --- | --- | --- |
 | Deployment | `apps/v1` | owner label, `spec.template.spec.containers`, explicit rollout strategy |
 | Pod | `v1` | owner label, `spec.containers` |
-| Service | `v1` | owner label, `spec.ports[].port`, or `externalName` for ExternalName type |
+| Service | `v1` | owner label; type omitted/`ClusterIP`, `NodePort`, or `LoadBalancer` with `spec.ports[].port`; `ExternalName` with `spec.externalName`. Other types are incomplete. |
 
 This is a deliberately narrow pinned schema/policy subset, not complete Kubernetes OpenAPI validation. It checks container identity, a nonblank image reference and the presence of configured CPU/memory limits; it does not parse resource-quantity syntax or validate image registries. The CLI uses only its bundled schema snapshot. A direct library caller supplies a trusted schema object explicitly.
 

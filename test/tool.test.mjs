@@ -55,6 +55,21 @@ test('supported Service cannot pass on an empty spec', () => {
   assert.equal(result.findings[0].ruleId, 'manifest-invalid');
 });
 
+test('known Service types pass but invented type and malformed labels stay incomplete', () => {
+  const base = { apiVersion: 'v1', kind: 'Service', metadata: { name: 'demo', labels: { owner: 'platform' } }, spec: { ports: [{ port: 80 }] } };
+  const check = service => lintManifests({ ...bundle, manifests: [{ manifest: service }] }, policy, schemas);
+  for (const type of [undefined, 'ClusterIP', 'NodePort', 'LoadBalancer']) {
+    assert.equal(check({ ...base, spec: { ...base.spec, type } }).status, 'pass');
+  }
+  assert.equal(check({ ...base, spec: { type: 'ExternalName', externalName: 'example.invalid' } }).status, 'pass');
+  const invented = check({ ...base, spec: { ...base.spec, type: 'Bogus' } });
+  assert.equal(invented.status, 'incomplete');
+  assert.ok(invented.findings.some(f => f.ruleId === 'manifest-invalid'));
+  const malformed = check({ ...base, metadata: { ...base.metadata, labels: ['owner', 'platform'] } });
+  assert.equal(malformed.status, 'incomplete');
+  assert.ok(malformed.findings.some(f => f.ruleId === 'manifest-invalid'));
+});
+
 test('manifest and container N/N+1, depth N/N+1, injected deadline N/N+1', () => {
   const many = n => ({ ...bundle, manifests: Array.from({ length: n }, () => bundle.manifests[0]) });
   assert.equal(lintManifests(many(1000), policy, schemas).status, 'pass');

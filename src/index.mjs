@@ -49,12 +49,14 @@ export function lintManifests(bundle, policy, schemas, { now = Date.now, deadlin
     const schema = kinds.find(s => s.apiVersion === m.apiVersion);
     if (!schema) { add('unsupported-api-version', `${pointer}/apiVersion`, 'Resource API version is outside pinned schema subset'); continue; }
     const labels = m.metadata.labels;
+    if (labels !== undefined && !obj(labels)) add('manifest-invalid', `${pointer}/metadata/labels`, 'Manifest labels must be an object when present');
     const owner = obj(labels) ? labels[policy.ownerLabel] : undefined;
     if (!slug(owner)) add('owner-missing', `${pointer}/metadata/labels`, 'Declared owner label is missing or unusable');
     else if (!policy.allowedOwners.includes(owner)) add('owner-not-allowed', `${pointer}/metadata/labels`, 'Declared owner is outside policy allowlist');
     if (schema.shape === 'service') {
       const spec = m.spec;
-      if (!obj(spec) || (spec.type === 'ExternalName' ? !dnsName(spec.externalName) : !Array.isArray(spec.ports) || !spec.ports.length || spec.ports.some(p => !obj(p) || !Number.isSafeInteger(p.port) || p.port < 1 || p.port > 65535))) add('manifest-invalid', `${pointer}/spec`, 'Service spec is missing required routing evidence');
+      const type = obj(spec) && spec.type === undefined ? 'ClusterIP' : spec?.type;
+      if (!['ClusterIP', 'NodePort', 'LoadBalancer', 'ExternalName'].includes(type) || (type === 'ExternalName' ? !dnsName(spec.externalName) : !Array.isArray(spec.ports) || !spec.ports.length || spec.ports.some(p => !obj(p) || !Number.isSafeInteger(p.port) || p.port < 1 || p.port > 65535))) add('manifest-invalid', `${pointer}/spec`, 'Service type or required routing evidence is invalid');
       continue;
     }
     const podSpec = schema.shape === 'deployment' ? m.spec?.template?.spec : m.spec;
