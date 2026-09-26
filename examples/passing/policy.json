@@ -1,0 +1,1 @@
+{"schemaVersion":"1","ownerLabel":"owner","allowedOwners":["platform"],"requireCpuLimit":true,"requireMemoryLimit":true,"allowedRolloutTypes":["RollingUpdate"]}

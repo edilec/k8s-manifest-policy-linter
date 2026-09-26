@@ -1,0 +1,19 @@
+{
+  "name": "k8s-manifest-policy-linter",
+  "version": "0.1.0",
+  "description": "Lint Kubernetes manifests for policy, ownership, resource and rollout gaps.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "node --check src/index.mjs && node --check src/json-keys.mjs && node --check src/cli.mjs && node --check bin/k8s-manifest-policy-linter.mjs",
+    "test": "node --test",
+    "check": "npm run lint && npm test"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/edilec/k8s-manifest-policy-linter"
+  }
+}
